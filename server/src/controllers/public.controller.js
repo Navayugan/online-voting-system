@@ -10,7 +10,7 @@ async function getOrganization(req, res) {
       `SELECT org_name, org_code, gstn_number, org_type, logo_url, primary_color, secondary_color, website, is_setup_complete FROM organizations LIMIT 1`
     );
     return res.json({ success: true, organization: rows[0] || null });
-  } catch (err) {
+  } catch {
     return res.status(500).json({ success: false, message: 'Server error.' });
   }
 }
@@ -19,7 +19,7 @@ async function getBranches(req, res) {
   try {
     const [rows] = await db.execute(`SELECT id, branch_name, branch_code FROM branches WHERE is_active = TRUE ORDER BY branch_name`);
     return res.json({ success: true, branches: rows });
-  } catch (err) {
+  } catch {
     return res.status(500).json({ success: false, message: 'Server error.' });
   }
 }

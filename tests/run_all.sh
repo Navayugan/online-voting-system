@@ -16,7 +16,12 @@ start_stack() {
   (cd "$ROOT/tests" && node spa_server.js >/tmp/ovms_web.log 2>&1 & echo $! > /tmp/ovms_web.pid)
   sleep 3
 }
-stop_stack() { kill "$(cat /tmp/ovms_api.pid)" "$(cat /tmp/ovms_web.pid)" 2>/dev/null; }
+stop_stack() {
+  [ -f /tmp/ovms_api.pid ] && kill -9 "$(cat /tmp/ovms_api.pid)" 2>/dev/null || true
+  [ -f /tmp/ovms_web.pid ] && kill -9 "$(cat /tmp/ovms_web.pid)" 2>/dev/null || true
+  pkill -9 -f "src/server.js" 2>/dev/null || true
+  pkill -9 -f "spa_server.js" 2>/dev/null || true
+}
 trap stop_stack EXIT
 FAIL=0
 for step in "api:node $ROOT/tests/api/api_e2e.js" "ui-roles:python3 $ROOT/tests/ui/ui_e2e_roles.py" "ui-flows:python3 $ROOT/tests/ui/ui_e2e_flows.py"; do

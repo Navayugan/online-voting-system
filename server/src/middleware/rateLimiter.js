@@ -13,15 +13,17 @@ const generalLimiter = rateLimit({
   }
 });
 
-// Auth endpoint rate limiter: 10 attempts per 15 minutes per IP + username
+// Auth endpoint rate limiter: 5 attempts per 5 seconds per IP + username
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
+  windowMs: 5 * 1000,
+  max: 5,
   standardHeaders: true,
   legacyHeaders: false,
+  skipSuccessfulRequests: true,
   keyGenerator: (req) => {
+    const ip = req.ip || req.connection?.remoteAddress || '127.0.0.1';
     const username = (req.body && (req.body.username || req.body.employeeId)) || '';
-    return `${req.ip}_${username}`;
+    return `${ip}_${username}`;
   },
   handler: (req, res) => {
     res.status(429).json({

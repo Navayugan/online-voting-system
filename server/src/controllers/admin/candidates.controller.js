@@ -41,9 +41,24 @@ async function createCandidate(req, res) {
     if (elections.length === 0) {
       return res.status(404).json({ success: false, message: 'Election not found.' });
     }
-    // Integrity check: Candidates cannot be added to an ACTIVE or CLOSED election
-    if (elections[0].status === 'ACTIVE' || elections[0].status === 'CLOSED') {
-      return res.status(400).json({ success: false, message: 'Cannot add candidates to an active or closed election.' });
+    // Integrity check: Candidates cannot be added to a closed or cancelled election
+    if (elections[0].status === 'CLOSED' || elections[0].status === 'CANCELLED') {
+      return res.status(400).json({ success: false, message: 'Cannot add candidates to a closed or cancelled election.' });
+    }
+
+    // Integrity check: Candidates cannot be added once voting has commenced
+    const [ballotsTable] = await db.execute("SHOW TABLES LIKE 'ballots'");
+    if (ballotsTable.length > 0) {
+      const [[{ voteCount }]] = await db.execute(
+        `SELECT (
+          (SELECT COUNT(*) FROM voter_roll WHERE election_id = ?) +
+          (SELECT COUNT(*) FROM ballots WHERE election_id = ?)
+        ) AS voteCount`,
+        [election_id, election_id]
+      );
+      if (Number(voteCount) > 0) {
+        return res.status(400).json({ success: false, message: 'Cannot add candidates to an election once voting has started.' });
+      }
     }
 
     // 2. Verify employee exists and is active
