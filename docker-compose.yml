@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: employee_voting_system
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./server/database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./server/database/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
+
+  api:
+    build: .
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: rootpassword
+      DB_NAME: employee_voting_system
+      PORT: 8000
+      JWT_SECRET: replace-this-with-a-32-char-secret-string
+      FRONTEND_URL: http://localhost:3000
+      NODE_ENV: production
+    depends_on:
+      - db
+
+volumes:
+  mysql_data:

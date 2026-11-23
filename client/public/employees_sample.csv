@@ -1,0 +1,6 @@
+employee_id,employee_name,date_of_birth,gender,personal_email,official_email,phone_number
+EMP001,Jane Doe,1992-04-15,Female,jane.doe@example.com,jane.doe@company.com,+15550192831
+EMP002,John Smith,1988-11-23,Male,john.smith@example.com,john.smith@company.com,+15550183742
+EMP003,Alex Rivera,1995-07-08,Non-Binary,,alex.rivera@company.com,+15550149201
+EMP004,Maria Garcia,1990-01-30,Female,maria.g@example.com,maria.garcia@company.com,
+EMP005,David Kim,1985-09-12,Male,,david.kim@company.com,+15550172639

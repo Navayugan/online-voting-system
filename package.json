@@ -1,0 +1,13 @@
+{
+  "name": "online-voting-system",
+  "private": true,
+  "description": "Employee online voting system (React client + Express/MySQL server)",
+  "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix client install",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client start",
+    "build:client": "npm --prefix client run build",
+    "db:migrate": "npm --prefix server run migrate",
+    "test": "bash tests/run_all.sh"
+  }
+}

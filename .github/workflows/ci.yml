@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: employee_voting_system
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies & Playwright
+        run: |
+          python -m pip install --upgrade pip
+          pip install playwright
+          playwright install --with-deps chromium
+
+      - name: Install server dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Verify server production dependencies security
+        working-directory: server
+        run: npm audit --omit=dev
+
+      - name: Lint server
+        working-directory: server
+        run: npm run lint
+
+      - name: Install client dependencies
+        working-directory: client
+        run: npm ci
+
+      - name: Lint client
+        working-directory: client
+        run: npm run lint
+
+      - name: Build client
+        working-directory: client
+        env:
+          REACT_APP_API_URL: http://127.0.0.1:8000
+          CI: false
+        run: npm run build
+
+      - name: Run acceptance test suite
+        env:
+          MYSQL_PWD: rootpassword
+          MYSQL_HOST: 127.0.0.1
+          MYSQL_USER: root
+          DB_NAME: employee_voting_system
+          API_BASE: http://127.0.0.1:8000
+          WEB_BASE: http://localhost:3000
+        run: |
+          chmod +x tests/run_all.sh
+          bash tests/run_all.sh
