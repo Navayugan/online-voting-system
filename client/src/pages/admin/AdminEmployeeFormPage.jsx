@@ -87,7 +87,15 @@ export default function AdminEmployeeFormPage() {
       const payload = {
         ...form,
         password: form.password ? form.password.trim() : undefined,
-        custom_designation: form.designation ? form.designation.trim() : undefined
+        custom_designation: form.designation ? form.designation.trim() : undefined,
+        // Strip empty strings for nullable date/email fields so server receives null, not ''
+        joining_date: form.joining_date || undefined,
+        personal_email: form.personal_email || undefined,
+        official_email: form.official_email || undefined,
+        phone_number: form.phone_number || undefined,
+        department_id: form.department_id || undefined,
+        branch_id: form.branch_id || undefined,
+        location_id: form.location_id || undefined,
       };
       if (id) {
         await api.put(`/api/admin/employees/${id}`, payload);

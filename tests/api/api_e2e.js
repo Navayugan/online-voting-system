@@ -197,7 +197,8 @@ function check(id, desc, cond, detail = '') {
 
   // Audit coverage
   r = await call('GET', '/api/admin/audit-logs?limit=100', { token: adminTok });
-  const actions = new Set(r.data.logs.map(l => l.action));
+  const logs = Array.isArray(r.data?.logs) ? r.data.logs : [];
+  const actions = new Set(logs.map(l => l.action));
   check('AUDIT-01', 'Audit log covers logins (LOGIN / LOGIN_FAILED)', actions.has('ADMIN_LOGIN') || actions.has('LOGIN') || actions.has('LOGIN_FAILED'), `distinct actions=${[...actions].join(',')}`);
   check('AUDIT-02', 'Audit log covers vote casting / candidate updates / profile updates', actions.has('VOTE_CAST') || actions.has('CANDIDATE_UPDATED'), '');
 
