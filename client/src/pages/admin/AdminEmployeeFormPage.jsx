@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import api from '../../api/axios';
 import { useOrg } from '../../context/OrgContext';
-import { PageHeader, Btn, Input, Select, Card, Alert, LoadingState, ErrorState, SectionTitle, useToast, OrgRequiredNotice, ConfirmDialog, Badge } from '../../components/ui';
+import { PageHeader, Btn, Input, Select, Card, Alert, LoadingState, ErrorState, SectionTitle, useToast, OrgRequiredNotice, ConfirmDialog } from '../../components/ui';
 
 export default function AdminEmployeeFormPage() {
   const { id } = useParams();
@@ -10,7 +10,6 @@ export default function AdminEmployeeFormPage() {
   const { isOrgConfigured, loading: orgLoading, terms } = useOrg();
   const [loading, setLoading] = useState(!!id);
   const [saving, setSaving] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [error, setError] = useState('');
   const [formError, setFormError] = useState('');
@@ -73,7 +72,7 @@ export default function AdminEmployeeFormPage() {
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!id && !isOrgConfigured) {
       setFormError(`Please create an organization profile before adding ${memberPlural.toLowerCase()}.`);
@@ -83,15 +82,11 @@ export default function AdminEmployeeFormPage() {
       setFormError(`${memberIdLabel}, Name, and Date of Birth are required.`); return;
     }
     setFormError('');
-    setConfirmOpen(true);
-  };
-
-  const handleConfirmSave = async () => {
-    setSaving(true); setFormError('');
+    setSaving(true);
     try {
       const payload = {
         ...form,
-        password: form.employee_id ? form.employee_id.trim() : undefined,
+        password: form.password ? form.password.trim() : undefined,
         custom_designation: form.designation ? form.designation.trim() : undefined
       };
       if (id) {
@@ -101,16 +96,14 @@ export default function AdminEmployeeFormPage() {
         await api.post('/api/admin/employees', payload);
         show(`${memberSingular} created successfully!`);
       }
-      setConfirmOpen(false);
-      setTimeout(() => navigate('/admin/employees'), 1500);
+      navigate('/admin/employees');
     } catch (err) {
       const respData = err.response?.data;
       if (respData?.errors && respData.errors.length > 0) {
-        setFormError(respData.errors.map(e => e.message).join(' '));
+        setFormError(respData.errors.map(item => item.message).join(' '));
       } else {
         setFormError(respData?.message || `Failed to save ${memberSingular.toLowerCase()}.`);
       }
-      setConfirmOpen(false);
       setSaving(false);
     }
   };
@@ -277,67 +270,6 @@ export default function AdminEmployeeFormPage() {
           </div>
         </div>
       </form>
-
-      <ConfirmDialog
-        open={confirmOpen}
-        title={id ? `Confirm ${memberSingular} Update` : `Confirm New ${memberSingular}`}
-        message={id ? `Please review the updated details for "${form.employee_name}" before saving:` : `Please review the new ${memberSingular.toLowerCase()} details before saving:`}
-        variant="primary"
-        confirmText={id ? 'Confirm & Update' : 'Confirm & Create'}
-        cancelText="Cancel"
-        loading={saving}
-        onConfirm={handleConfirmSave}
-        onCancel={() => !saving && setConfirmOpen(false)}
-      >
-        <div style={{ background: '#f8fafc', borderRadius: '12px', padding: '16px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
-            <span style={{ color: '#64748b', fontWeight: '600' }}>{memberIdLabel}:</span>
-            <span style={{ color: '#0f172a', fontWeight: '700', fontFamily: 'monospace' }}>{form.employee_id}</span>
-          </div>
-          {!id && form.employee_id && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
-              <span style={{ color: '#64748b', fontWeight: '600' }}>Initial Password:</span>
-              <span style={{ color: '#166534', fontWeight: '700', fontFamily: 'monospace' }}>{form.employee_id} (Same as ID)</span>
-            </div>
-          )}
-          <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
-            <span style={{ color: '#64748b', fontWeight: '600' }}>{terms?.memberNameLabel || 'Full Name'}:</span>
-            <span style={{ color: '#0f172a', fontWeight: '700' }}>{form.employee_name}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
-            <span style={{ color: '#64748b', fontWeight: '600' }}>Date of Birth:</span>
-            <span style={{ color: '#0f172a' }}>{form.date_of_birth}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
-            <span style={{ color: '#64748b', fontWeight: '600' }}>Gender / Type:</span>
-            <span style={{ color: '#0f172a' }}>{form.gender} • {form.employee_type?.replace(/_/g, ' ')}</span>
-          </div>
-          {form.department_id && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
-              <span style={{ color: '#64748b', fontWeight: '600' }}>Department:</span>
-              <span style={{ color: '#0f172a' }}>{departments.find(d => String(d.id) === String(form.department_id))?.department_name || '—'}</span>
-            </div>
-          )}
-          {form.designation?.trim() && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
-              <span style={{ color: '#64748b', fontWeight: '600' }}>{roleLabel}:</span>
-              <span style={{ color: '#0f172a', fontWeight: '700' }}>{form.designation.trim()}</span>
-            </div>
-          )}
-          {id && form.account_status && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
-              <span style={{ color: '#64748b', fontWeight: '600' }}>Account Status:</span>
-              <span><Badge status={form.account_status} /></span>
-            </div>
-          )}
-          {form.official_email && (
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#64748b', fontWeight: '600' }}>Official Email:</span>
-              <span style={{ color: '#0f172a' }}>{form.official_email}</span>
-            </div>
-          )}
-        </div>
-      </ConfirmDialog>
 
       <ConfirmDialog
         open={deleteConfirmOpen}

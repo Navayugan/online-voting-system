@@ -13,17 +13,7 @@ async function getResults(req, res) {
     if (!election) return res.status(404).json({ success: false, message: 'Election not found.' });
 
     const effectiveStatus = getEffectiveStatus(election);
-    const resultsVisibility = process.env.RESULTS_VISIBILITY || 'after_close';
-
-    // If election is currently ACTIVE and visibility is after_close, return locked/provisional
-    if (effectiveStatus === 'ACTIVE' && resultsVisibility === 'after_close') {
-      return res.status(403).json({
-        success: false,
-        code: 'RESULTS_LOCKED',
-        message: 'Results are hidden while election is active.',
-        provisional: true
-      });
-    }
+    const isProvisional = effectiveStatus === 'ACTIVE';
 
     // Check if ballots table exists, otherwise fallback to votes
     const [ballotsTable] = await db.execute("SHOW TABLES LIKE 'ballots'");
@@ -79,7 +69,8 @@ async function getResults(req, res) {
       results,
       totalVotes,
       eligibleEmployees: eligible,
-      participation: eligible > 0 ? ((totalVotes / eligible) * 100).toFixed(2) : '0.00'
+      participation: eligible > 0 ? ((totalVotes / eligible) * 100).toFixed(2) : '0.00',
+      provisional: isProvisional
     });
   } catch (err) {
     console.error('[getResults]', err);

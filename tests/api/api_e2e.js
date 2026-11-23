@@ -24,7 +24,7 @@ function check(id, desc, cond, detail = '') {
   // ---------- AUTH ----------
   let r = await call('POST', '/api/auth/admin/login', { body: { username: 'admin', password: 'admin123' } });
   check('AUTH-01', 'Admin login with seed credentials', r.status === 200 && r.data.token, `status=${r.status}`);
-  const adminTok = r.data.token;
+  let adminTok = r.data.token;
 
   r = await call('POST', '/api/auth/admin/login', { body: { username: 'admin', password: 'wrong' } });
   check('AUTH-02', 'Admin login wrong password -> 401', r.status === 401, `status=${r.status}`);
@@ -183,7 +183,9 @@ function check(id, desc, cond, detail = '') {
   r = await call('POST', '/api/admin/profile/change-password', { token: adminTok, body: { current_password: 'admin123', new_password: 'newpass123' } });
   r = await call('GET', '/api/admin/dashboard', { token: adminTok });
   check('SESS-02', 'Old admin JWT invalid after password change', r.status === 401, `status=${r.status}`);
-  await call('POST', '/api/admin/profile/change-password', { token: adminTok, body: { current_password: 'newpass123', new_password: 'admin123' } });
+  const newTok = (await call('POST', '/api/auth/admin/login', { body: { username: 'admin', password: 'newpass123' } })).data?.token;
+  await call('POST', '/api/admin/profile/change-password', { token: newTok || adminTok, body: { current_password: 'newpass123', new_password: 'admin123' } });
+  adminTok = (await call('POST', '/api/auth/admin/login', { body: { username: 'admin', password: 'admin123' } })).data?.token || adminTok;
 
   // Headers
   r = await call('GET', '/api/public/organization');

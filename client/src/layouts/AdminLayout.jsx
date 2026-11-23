@@ -152,12 +152,23 @@ const Sidebar = ({ collapsed, setCollapsed, primary, org, terms, auth, handleLog
 };
 
 export default function AdminLayout() {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
   const { auth, logout } = useAuth();
   const { org, isOrgConfigured, terms } = useOrg();
   const location = useLocation();
   const navigate = useNavigate();
   const primary = org?.primary_color || '#1e40af';
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setCollapsed(true);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (org?.org_name) {

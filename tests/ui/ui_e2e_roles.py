@@ -140,7 +140,7 @@ with sync_playwright() as p:
     # 11 Admin mobile layout
     page.set_viewport_size({'width': 390, 'height': 800}); page.goto(WEB + '/admin/dashboard'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(500)
     page.screenshot(path=f'{SHOTS}/07_admin_mobile.png')
-    content_w = page.evaluate("(() => { const m=[...document.querySelectorAll('div')].find(d=>getComputedStyle(d).marginLeft==='260px'); return m? m.getBoundingClientRect().width : -1 })()")
+    content_w = page.evaluate("(() => { const m=[...document.querySelectorAll('div')].find(d=>getComputedStyle(d).marginLeft==='260px'); if (m) return m.getBoundingClientRect().width; const c = document.querySelector('div[style*=\"padding: 32px\"], main') || document.body; return c.getBoundingClientRect().width; })()")
     rec('UI-07', 'Admin panel usable at 390px (content width > 200px, sidebar collapses)', content_w > 200, f'content column width={content_w}px (260px fixed sidebar)')
     page.set_viewport_size({'width': 1280, 'height': 800})
 

@@ -22,19 +22,17 @@ async function getLocations(req, res) {
 }
 
 async function createLocation(req, res) {
-  const { location_code, location_name, district, address_line1, address_line2, city, state, country, postal_code } = req.body;
+  const { location_code, location_name, district, city, state, country, postal_code } = req.body;
   if (!location_code || !location_name) {
     return res.status(400).json({ success: false, message: 'Location code and name are required.' });
   }
   try {
     const [result] = await db.execute(
-      `INSERT INTO locations (location_code, location_name, district, address_line1, address_line2, city, state, country, postal_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO locations (location_code, location_name, district, city, state, country, postal_code) VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         location_code.trim().toUpperCase(),
         location_name.trim(),
         district ? district.trim() : null,
-        address_line1 || null,
-        address_line2 || null,
         city ? city.trim() : null,
         state ? state.trim() : null,
         country ? country.trim() : null,
@@ -52,15 +50,13 @@ async function createLocation(req, res) {
 
 async function updateLocation(req, res) {
   const { id } = req.params;
-  const { location_code, location_name, district, address_line1, address_line2, city, state, country, postal_code, is_active } = req.body;
+  const { location_code, location_name, district, city, state, country, postal_code, is_active } = req.body;
   try {
     const [result] = await db.execute(
       `UPDATE locations SET
         location_code = COALESCE(?, location_code),
         location_name = COALESCE(?, location_name),
         district = COALESCE(?, district),
-        address_line1 = COALESCE(?, address_line1),
-        address_line2 = COALESCE(?, address_line2),
         city = COALESCE(?, city),
         state = COALESCE(?, state),
         country = COALESCE(?, country),
@@ -71,8 +67,6 @@ async function updateLocation(req, res) {
         location_code ? location_code.trim().toUpperCase() : null,
         location_name ? location_name.trim() : null,
         district !== undefined ? (district ? district.trim() : null) : null,
-        address_line1 !== undefined ? address_line1 : null,
-        address_line2 !== undefined ? address_line2 : null,
         city !== undefined ? (city ? city.trim() : null) : null,
         state !== undefined ? (state ? state.trim() : null) : null,
         country !== undefined ? (country ? country.trim() : null) : null,

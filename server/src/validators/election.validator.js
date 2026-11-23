@@ -24,20 +24,17 @@ const updateElectionSchema = z.object({
     id: z.preprocess((val) => parseInt(val, 10), z.number().int().positive())
   }),
   body: z.object({
-    title: z.string().trim().min(1).max(200).optional(),
+    title: z.string().trim().min(1, 'Title is required.').max(200),
     description: z.string().optional().nullable(),
     election_type: z.string().max(100).optional().nullable(),
-    start_date: z.string().optional(),
-    end_date: z.string().optional(),
+    start_date: z.string().min(1, 'Start date is required.'),
+    end_date: z.string().min(1, 'End date is required.'),
     status: z.enum(['DRAFT', 'UPCOMING', 'ACTIVE', 'CLOSED', 'CANCELLED']).optional(),
     department_id: z.preprocess((val) => (val ? parseInt(val, 10) : null), z.number().int().positive().nullable()).optional(),
     branch_id: z.preprocess((val) => (val ? parseInt(val, 10) : null), z.number().int().positive().nullable()).optional(),
     location_id: z.preprocess((val) => (val ? parseInt(val, 10) : null), z.number().int().positive().nullable()).optional()
   }).refine((data) => {
-    if (data.start_date && data.end_date) {
-      return new Date(data.end_date) > new Date(data.start_date);
-    }
-    return true;
+    return new Date(data.end_date) > new Date(data.start_date);
   }, {
     message: 'Election end date must be after start date.',
     path: ['end_date']
