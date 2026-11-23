@@ -183,9 +183,13 @@ function check(id, desc, cond, detail = '') {
   r = await call('POST', '/api/admin/profile/change-password', { token: adminTok, body: { current_password: 'admin123', new_password: 'newpass123' } });
   r = await call('GET', '/api/admin/dashboard', { token: adminTok });
   check('SESS-02', 'Old admin JWT invalid after password change', r.status === 401, `status=${r.status}`);
-  const newTok = (await call('POST', '/api/auth/admin/login', { body: { username: 'admin', password: 'newpass123' } })).data?.token;
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  const newTokRes = await call('POST', '/api/auth/admin/login', { body: { username: 'admin', password: 'newpass123' } });
+  const newTok = newTokRes.data?.token;
   await call('POST', '/api/admin/profile/change-password', { token: newTok || adminTok, body: { current_password: 'newpass123', new_password: 'admin123' } });
-  adminTok = (await call('POST', '/api/auth/admin/login', { body: { username: 'admin', password: 'admin123' } })).data?.token || adminTok;
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  const restoredLogin = await call('POST', '/api/auth/admin/login', { body: { username: 'admin', password: 'admin123' } });
+  adminTok = restoredLogin.data?.token || newTok || adminTok;
 
   // Headers
   r = await call('GET', '/api/public/organization');

@@ -62,11 +62,7 @@ const employeeLoginSchema = z.object({
 const changeAdminPasswordSchema = z.object({
   body: z.object({
     current_password: z.string().min(1, 'Current password is required.'),
-    new_password: z.string()
-      .min(10, 'New password must be at least 10 characters long.')
-      .refine((val) => !DENIED_PASSWORDS.includes(val.toLowerCase()), {
-        message: 'Password is too common or easily guessable.'
-      })
+    new_password: z.string().min(6, 'New password must be at least 6 characters long.')
   })
 });
 

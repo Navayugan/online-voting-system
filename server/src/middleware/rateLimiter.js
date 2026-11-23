@@ -13,9 +13,9 @@ const generalLimiter = rateLimit({
   }
 });
 
-// Auth endpoint rate limiter: 5 attempts per 5 seconds per IP + username
+// Auth endpoint rate limiter: 5 attempts per 1.5 seconds per IP + username
 const authLimiter = rateLimit({
-  windowMs: 5 * 1000,
+  windowMs: 1500,
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,

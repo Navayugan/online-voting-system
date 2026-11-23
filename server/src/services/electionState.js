@@ -24,10 +24,14 @@ function getEffectiveStatus(election) {
   if (election.status === 'CANCELLED') return 'CANCELLED';
   if (election.status === 'CLOSED') return 'CLOSED';
 
-  if (endDate && now > endDate) {
+  // Only derive CLOSED from expired dates when the election was ACTIVE.
+  // DRAFT and UPCOMING elections keep their stored status even if dates have passed
+  // (admin must explicitly close them).
+  if (election.status === 'ACTIVE' && endDate && now > endDate) {
     return 'CLOSED';
   }
 
+  // Auto-advance UPCOMING → ACTIVE when start_date has arrived but end_date hasn't yet
   if (election.status === 'UPCOMING' && startDate && endDate && now >= startDate && now <= endDate) {
     return 'ACTIVE';
   }

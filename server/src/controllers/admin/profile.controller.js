@@ -38,8 +38,8 @@ async function updateAdminProfile(req, res) {
 
 async function changeAdminPassword(req, res) {
   const { current_password, new_password } = req.body;
-  if (!current_password || !new_password || new_password.length < 10) {
-    return res.status(400).json({ success: false, message: 'Valid current and new password (min 10 chars) required.' });
+  if (!current_password || !new_password || new_password.length < 6) {
+    return res.status(400).json({ success: false, message: 'Valid current and new password (min 6 chars) required.' });
   }
   try {
     const [rows] = await db.execute(`SELECT password_hash FROM admins WHERE id = ?`, [req.user.id]);
