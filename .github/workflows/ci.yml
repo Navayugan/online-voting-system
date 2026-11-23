@@ -73,10 +73,12 @@ jobs:
 
       - name: Run acceptance test suite
         env:
+          PORT: 8000
           MYSQL_PWD: rootpassword
           MYSQL_HOST: 127.0.0.1
           MYSQL_USER: root
           DB_HOST: 127.0.0.1
+          DB_PORT: 3306
           DB_USER: root
           DB_PASSWORD: rootpassword
           DB_NAME: employee_voting_system
