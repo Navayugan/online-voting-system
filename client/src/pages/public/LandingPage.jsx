@@ -24,16 +24,18 @@ export default function LandingPage() {
       color: '#ffffff',
       fontFamily: "'Inter', sans-serif",
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      maxWidth: '100vw',
+      overflowX: 'hidden'
     }}>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
       {/* Navbar */}
-      <nav style={{ padding: '32px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <nav style={{ padding: '24px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div style={{ fontSize: '32px', fontWeight: '700', letterSpacing: '-1px', color: '#ff3333' }}>
           {brandName}
         </div>
-        <div style={{ display: 'flex', gap: '14px' }}>
+        <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
           <Link to="/admin-login" style={{
             padding: '10px 20px',
             backgroundColor: 'transparent',
@@ -46,7 +48,7 @@ export default function LandingPage() {
             letterSpacing: '0.3px',
             transition: 'all 0.2s'
           }}>
-            Admin Portal
+            Admin Login
           </Link>
           <Link to="/login" style={{
             padding: '10px 22px',

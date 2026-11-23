@@ -277,10 +277,11 @@ export default function AdminLoginPage({ initialMode = 'signin' }) {
           {mode === 'signin' ? (
             <form onSubmit={handleSignIn}>
               <div style={{ marginBottom: '18px' }}>
-                <label style={labelStyle}>Admin Username</label>
+                <label htmlFor="identifier" style={labelStyle}>Admin Username</label>
                 <input
                   id="identifier"
                   name="identifier"
+                  autoComplete="username"
                   type="text"
                   value={form.identifier}
                   onChange={handleChange}
@@ -293,10 +294,11 @@ export default function AdminLoginPage({ initialMode = 'signin' }) {
               </div>
 
               <div style={{ marginBottom: '24px' }}>
-                <label style={labelStyle}>Password</label>
+                <label htmlFor="password" style={labelStyle}>Password</label>
                 <input
                   id="password"
                   name="password"
+                  autoComplete="current-password"
                   type="password"
                   value={form.password}
                   onChange={handleChange}

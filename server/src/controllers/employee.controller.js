@@ -283,12 +283,6 @@ async function submitVote(req, res) {
       );
     }
 
-    // 7. Update candidate vote count (cache)
-    await conn.execute(
-      `UPDATE candidates SET vote_count = vote_count + 1 WHERE id = ?`,
-      [candidateId]
-    );
-
     // 8. Log vote cast in audit_logs (ELECTION ONLY, NEVER CANDIDATE ID)
     await logAction(null, 'VOTE_CAST', 'elections', electionId, `Employee cast a vote in election ID ${electionId}`, req.ip, conn);
 

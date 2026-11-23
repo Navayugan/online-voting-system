@@ -345,8 +345,8 @@ async function bulkCreateEmployees(req, res) {
       }
 
       try {
-        // Default employee password to employee ID
-        const tempPassword = employee_id.trim();
+        // Generate secure temporary password (not equal to employee ID)
+        const tempPassword = 'Emp!' + crypto.randomBytes(4).toString('hex');
         const empPasswordHash = await bcrypt.hash(tempPassword, BCRYPT_ROUNDS);
 
         await connection.execute(

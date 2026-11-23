@@ -148,19 +148,32 @@ export default function EmployeeDashboardPage() {
                   </div>
 
                   {/* CTA */}
-                  <Link to={!e.has_voted && isActive ? `/employee/elections/${e.id}/vote` : '#'} style={{ textDecoration: 'none' }}>
-                    <button
-                      disabled={e.has_voted || !isActive}
+                  {!e.has_voted && isActive ? (
+                    <Link
+                      to={`/employee/elections/${e.id}/vote`}
                       style={{
-                        width: '100%', padding: '12px', borderRadius: '10px', fontWeight: '700', fontSize: '14px', cursor: e.has_voted || !isActive ? 'not-allowed' : 'pointer', border: 'none',
-                        background: e.has_voted ? '#f1f5f9' : !isActive ? '#f8fafc' : 'linear-gradient(135deg,' + primary + ',#7c3aed)',
-                        color: e.has_voted ? '#94a3b8' : !isActive ? '#94a3b8' : '#fff',
-                        transition: 'opacity 0.2s',
+                        display: 'block', width: '100%', padding: '12px', borderRadius: '10px',
+                        fontWeight: '700', fontSize: '14px', cursor: 'pointer', border: 'none',
+                        textAlign: 'center', textDecoration: 'none', boxSizing: 'border-box',
+                        background: 'linear-gradient(135deg,' + primary + ',#7c3aed)',
+                        color: '#fff', transition: 'opacity 0.2s'
                       }}
                     >
-                      {e.has_voted ? 'Vote Recorded ✅' : !isActive ? (e.status === 'UPCOMING' ? '📅 Not Yet Open' : '🔒 Election Closed') : 'Cast Your Vote →'}
-                    </button>
-                  </Link>
+                      Cast Your Vote →
+                    </Link>
+                  ) : (
+                    <div
+                      style={{
+                        width: '100%', padding: '12px', borderRadius: '10px', fontWeight: '700',
+                        fontSize: '14px', cursor: 'not-allowed', border: 'none', textAlign: 'center',
+                        boxSizing: 'border-box',
+                        background: e.has_voted ? '#f1f5f9' : '#f8fafc',
+                        color: '#94a3b8'
+                      }}
+                    >
+                      {e.has_voted ? 'Vote Recorded ✅' : (e.status === 'UPCOMING' ? '📅 Not Yet Open' : '🔒 Election Closed')}
+                    </div>
+                  )}
                 </div>
               );
             })}

@@ -90,11 +90,19 @@ export default function EmployeeVotePage() {
         {candidates.length === 0 ? (
           <p style={{ color: '#64748b', textAlign: 'center', padding: '40px' }}>No candidates available for this election.</p>
         ) : (
-          <div style={{ display: 'grid', gap: '16px', marginBottom: '32px' }}>
+          <div style={{ display: 'grid', gap: '16px', marginBottom: '32px' }} role="radiogroup">
             {candidates.map(c => (
-              <div key={c.id} onClick={() => setSelected(c.id)}
+              <div key={c.id} role="radio" aria-checked={selected === c.id} tabIndex={0} onClick={() => setSelected(c.id)}
+                onKeyDown={e => { if (e.key === ' ' || e.key === 'Enter') setSelected(c.id); }}
                 style={{ padding: '20px', borderRadius: '16px', border: selected === c.id ? `2px solid ${primary}` : '1px solid #e2e8f0', background: selected === c.id ? `${primary}08` : '#fff', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', gap: '20px', alignItems: 'center' }}>
-                <div style={{ width: '24px', height: '24px', borderRadius: '50%', border: selected === c.id ? `6px solid ${primary}` : '2px solid #cbd5e1', transition: 'all 0.2s' }} />
+                <input
+                  type="radio"
+                  name="candidate"
+                  value={c.id}
+                  checked={selected === c.id}
+                  onChange={() => setSelected(c.id)}
+                  style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: primary }}
+                />
                 <div>
                   <div style={{ fontSize: '18px', fontWeight: '700', color: '#0f172a', marginBottom: '4px' }}>{c.employee_name}</div>
                   <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500', marginBottom: '6px' }}>{c.department_name} {c.branch_name ? `• ${c.branch_name}` : ''}</div>

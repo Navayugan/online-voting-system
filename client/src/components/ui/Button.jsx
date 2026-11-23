@@ -10,6 +10,7 @@ export const Btn = ({ children, onClick, variant = 'primary', size = 'md', disab
     primary: { background: 'linear-gradient(135deg, #1e40af, #7c3aed)', color: '#fff' },
     danger: { background: 'linear-gradient(135deg, #dc2626, #ef4444)', color: '#fff' },
     ghost: { background: 'transparent', color: '#475569', border: '1px solid #e2e8f0' },
+    outline: { background: '#ffffff', color: '#1e40af', border: '1px solid #cbd5e1' },
     success: { background: 'linear-gradient(135deg, #059669, #10b981)', color: '#fff' },
     warning: { background: 'linear-gradient(135deg, #d97706, #f59e0b)', color: '#fff' },
   };

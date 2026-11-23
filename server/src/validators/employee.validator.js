@@ -1,5 +1,4 @@
 const { z } = require('zod');
-const { createPasswordSchema } = require('./auth.validator');
 
 const paginationQuerySchema = z.object({
   query: z.object({
@@ -49,7 +48,7 @@ const createEmployeeSchema = z.object({
     employee_type: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERN', 'CONSULTANT']).optional(),
     joining_date: z.string().optional().or(z.literal('')),
     reporting_manager_id: z.preprocess((val) => (val ? parseInt(val, 10) : null), z.number().int().positive().nullable()).optional(),
-    password: z.string().optional().or(z.literal('')),
+    password: z.string().refine((val) => !val || (val.length >= 8 && !['123456', '12345678', 'password', 'password123', 'admin123', 'emp123'].includes(val.toLowerCase())), { message: 'Password is too weak or commonly used.' }).optional().or(z.literal('')),
     account_status: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED']).optional()
   }).refine((data) => {
     if (data.joining_date && data.date_of_birth) {

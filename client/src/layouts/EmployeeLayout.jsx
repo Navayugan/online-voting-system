@@ -72,6 +72,26 @@ export default function EmployeeLayout() {
               <span style={{ marginRight: '6px' }}>{n.icon}</span> {n.label}
             </Link>
           ))}
+          <button
+            onClick={handleLogout}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 12px',
+              borderRadius: '8px',
+              background: 'rgba(239,68,68,0.2)',
+              color: '#fff',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              fontSize: '13px',
+              fontWeight: '600'
+            }}
+          >
+            <span>🚪</span>
+            <span>Logout</span>
+          </button>
           <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.2)', margin: '0 8px' }} />
           
           {/* User trigger button */}
