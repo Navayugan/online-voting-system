@@ -226,7 +226,11 @@ function check(id, desc, cond, detail = '') {
   await call('POST', '/api/admin/candidates', { token: adminTok, body: { election_id: raceId, employee_id: 'EMP002', employee_name: 'B' } });
   const rs = await Promise.all(Array.from({ length: 25 }, (_, i) => call('POST', `/api/employee/elections/${raceId}/vote`, { token: emp2, body: { candidateId: rc.data.id + (i % 2) } })));
   check('RACE-01', '25 parallel votes by one voter -> exactly one counted, no 5xx', rs.filter(x => x.status === 200).length === 1 && rs.every(x => x.status < 500), `200s=${rs.filter(x => x.status === 200).length}`);
-  check('INTEG-VC', 'Results are derived from the votes table (or counter cannot drift)', (() => { sql(`DELETE FROM votes WHERE election_id=${raceId}`); return sql(`SELECT COALESCE(SUM(vote_count),0) FROM candidates WHERE election_id=${raceId}`) === '0'; })(), 'results read candidates.vote_count which survives deletion of vote rows');
+  check('INTEG-VC', 'Results are derived from the votes table (or counter cannot drift)', (() => {
+    try { sql(`DELETE FROM ballots WHERE election_id=${raceId}`); } catch {}
+    try { sql(`DELETE FROM votes WHERE election_id=${raceId}`); } catch {}
+    return sql(`SELECT COALESCE(SUM(vote_count),0) FROM candidates WHERE election_id=${raceId}`) === '0';
+  })(), 'results read candidates.vote_count which survives deletion of vote rows');
 
   const tbls = sql("SELECT table_name FROM information_schema.columns WHERE table_schema=DATABASE() AND column_name IN ('candidate_id','employee_id','voter_id') GROUP BY table_name HAVING SUM(column_name='candidate_id')>0 AND SUM(column_name IN ('employee_id','voter_id'))>0");
   check('SEC-03', 'Ballot secrecy: no table links a voter to a candidate', tbls === '', `tables linking voter+candidate: ${tbls || 'none'}`);

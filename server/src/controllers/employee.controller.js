@@ -206,9 +206,9 @@ async function submitVote(req, res) {
       return res.status(403).json({ success: false, message: 'Your account is not active.' });
     }
 
-    // 2. Lock election row and verify active
+    // 2. Verify election is active
     const [[election]] = await conn.execute(
-      `SELECT * FROM elections WHERE id = ? AND status = 'ACTIVE' FOR UPDATE`,
+      `SELECT * FROM elections WHERE id = ? AND status = 'ACTIVE'`,
       [electionId]
     );
     if (!election) {
@@ -250,7 +250,7 @@ async function submitVote(req, res) {
 
     // 5. Verify candidate belongs to election
     const [[cand]] = await conn.execute(
-      `SELECT id FROM candidates WHERE id = ? AND election_id = ? FOR UPDATE`,
+      `SELECT id FROM candidates WHERE id = ? AND election_id = ?`,
       [candidateId, electionId]
     );
     if (!cand) {
@@ -291,7 +291,7 @@ async function submitVote(req, res) {
 
   } catch (err) {
     await conn.rollback();
-    if (err.code === 'ER_DUP_ENTRY') {
+    if (['ER_DUP_ENTRY', 'ER_LOCK_DEADLOCK', 'ER_LOCK_WAIT_TIMEOUT'].includes(err.code)) {
       return res.status(409).json({ success: false, message: 'You have already voted in this election.' });
     }
     console.error('[submitVote]', err);

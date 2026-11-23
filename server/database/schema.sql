@@ -320,6 +320,12 @@ CREATE TABLE ballots (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
+-- View: votes (compatibility view for ballots)
+-- ============================================================
+CREATE OR REPLACE VIEW votes AS
+  SELECT id, election_id, candidate_id, cast_at FROM ballots;
+
+-- ============================================================
 -- Table: audit_logs
 -- ============================================================
 CREATE TABLE audit_logs (
